@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <iostream>
 #include <iomanip>
+#include "crash_detection_umode.h"
 
 namespace fs = std::filesystem;
 
@@ -31,13 +32,15 @@ bool InsertTestcase(const uint8_t *Buffer, const size_t BufferSize) {
 
 bool Init(const Options_t &Opts, const CpuState_t &) {
   
-  if (!g_Backend->SetBreakpoint(Gva_t(0x7ff7c5d06cf6), [](Backend_t *Backend) { 
+  if (!g_Backend->SetBreakpoint(Gva_t(0x7ff7101d6cf6), [](Backend_t *Backend) { 
           DebugPrint("Reached function end\n");
           Backend->Stop(Ok_t());
       })) 
   {
     return false;
   }
+
+  SetupUsermodeCrashDetectionHooks();
 
   return true;
 }
