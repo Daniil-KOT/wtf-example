@@ -22,7 +22,11 @@ void DebugPrint(const char *Format, const Args_t &...args) {
 
 bool InsertTestcase(const uint8_t *Buffer, const size_t BufferSize) {
 
-  if (!g_Backend->VirtWrite(Gva_t(g_Backend->Rax()), Buffer, BufferSize <= 10 ? BufferSize : 10 , true)) {
+  // Inject the fuzzed data into the snapshot for this execution
+  if (!g_Backend->VirtWrite(Gva_t(g_Backend->Rax()), 
+                            Buffer, 
+                            BufferSize <= 10 ? BufferSize : 10 , 
+                            true)) {
     DebugPrint("Failed to write next testcase!");
     return false;
   }
@@ -32,7 +36,8 @@ bool InsertTestcase(const uint8_t *Buffer, const size_t BufferSize) {
 
 bool Init(const Options_t &Opts, const CpuState_t &) {
   
-  if (!g_Backend->SetBreakpoint(Gva_t(0x7ff7101d6cf6), [](Backend_t *Backend) { 
+  // Stop execution if we reach the ret instruction in checkBuf(...)
+  if (!g_Backend->SetBreakpoint(Gva_t(0x7ff77b974036), [](Backend_t *Backend) { 
           DebugPrint("Reached function end\n");
           Backend->Stop(Ok_t());
       })) 
@@ -40,15 +45,13 @@ bool Init(const Options_t &Opts, const CpuState_t &) {
     return false;
   }
 
+  // Instrument the Windows user-mode exception dispatcher to catch access violations
   SetupUsermodeCrashDetectionHooks();
 
   return true;
 }
 
-//
 // Register the target.
-//
-
 Target_t Test("test", Init, InsertTestcase);
 
 } // namespace Test
