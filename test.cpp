@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <Windows.h>
+#include <thread>
 
 const int BUF_SIZE = 11;
 DWORD g_BytesTransferred = 0;
@@ -59,7 +60,7 @@ unsigned char* readFile(unsigned char* buf)
 
 void checkBuf(unsigned char* buf)
 {
-	int* err = nullptr;
+	int err = 10;
 	if (buf[0] == 0xaa)
 		if (buf[1] == 0x9c)
 			if (buf[2] == 0xf3)
@@ -70,12 +71,17 @@ void checkBuf(unsigned char* buf)
 								if (buf[7] == 0xab)
 									if (buf[8] == 0xb4)
 										if (buf[9] == 0x4a)
-											*err = 1;
+											err = err / 0;
 }
 
 int main(int argc, char* argv[])
 {
 	static unsigned char buf[BUF_SIZE] = { 0 };
+
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	std::string s;
+	s.resize
+
 	unsigned char* bufA = readFile(buf);
 	if (bufA)
 	{
