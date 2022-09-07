@@ -79,8 +79,6 @@ int main(int argc, char* argv[])
 	static unsigned char buf[BUF_SIZE] = { 0 };
 
 	std::this_thread::sleep_for(std::chrono::seconds(5));
-	std::string s;
-	s.resize
 
 	unsigned char* bufA = readFile(buf);
 	if (bufA)
